@@ -97,7 +97,7 @@ export default function DashboardPage() {
   };
 
   if (carregando) {
-    return <p>Carregando dashboard...</p>;
+    return <p className="loading">Carregando dashboard...</p>;
   }
 
   return (
@@ -116,7 +116,7 @@ export default function DashboardPage() {
 
       <NovaListaForm onCriar={handleCriarLista} />
 
-      <h3>Suas listas</h3>
+      <h3 className="section-title">Suas listas</h3>
       {listas.length === 0 && <p>Você ainda não possui listas.</p>}
 
       <div className="grid">

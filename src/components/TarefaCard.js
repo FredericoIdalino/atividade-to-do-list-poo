@@ -22,13 +22,13 @@ export default function TarefaCard({
   return (
     <div className="card tarefa-card">
       <h4>{tarefa.titulo}</h4>
-      <p>{tarefa.descricao}</p>
+      {tarefa.descricao && <p>{tarefa.descricao}</p>}
       <p>
         <strong>Vencimento:</strong>{' '}
         {tarefa.data_vencimento || tarefa.dataDeVencimento || 'Sem data'}
       </p>
-      <p>
-        <strong>Status:</strong>
+      <div className="label" style={{ marginBottom: 0 }}>
+        <strong>Status</strong>
         <select
           className="select"
           value={novoStatus}
@@ -38,7 +38,7 @@ export default function TarefaCard({
           <option value="em progresso">Em progresso</option>
           <option value="concluida">Concluída</option>
         </select>
-      </p>
+      </div>
 
       <div className="card-actions">
         <button

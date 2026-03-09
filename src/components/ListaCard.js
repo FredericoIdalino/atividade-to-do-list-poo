@@ -9,7 +9,7 @@ export default function ListaCard({ lista, onExcluir }) {
   return (
     <div className="card">
       <h3>{lista.nome}</h3>
-      <p>{lista.descricao}</p>
+      <p>{lista.descricao || 'Sem descrição'}</p>
 
       <div className="card-actions">
         <Link className="button button-secondary" href={`/listas/${lista.id}`}>

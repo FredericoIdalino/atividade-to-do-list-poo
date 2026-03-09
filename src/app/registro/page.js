@@ -8,7 +8,7 @@ import RegisterForm from '../../components/RegisterForm';
 
 export default function RegistroPage() {
   return (
-    <section>
+    <section className="auth-page">
       <RegisterForm />
       <p className="helper-text">
         Já possui conta?{' '}

@@ -4,6 +4,7 @@
 // Página que mostra os detalhes de uma lista específica e suas tarefas.
 // Permite criar nova tarefa, atualizar status, editar e excluir tarefas.
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { supabase } from '../../../lib/supabaseClient';
@@ -203,7 +204,7 @@ export default function ListaDetalhePage() {
   };
 
   if (carregando) {
-    return <p>Carregando lista...</p>;
+    return <p className="loading">Carregando lista...</p>;
   }
 
   if (!lista) {
@@ -212,14 +213,19 @@ export default function ListaDetalhePage() {
 
   return (
     <section>
-      <h2>{lista.nome}</h2>
-      <p>{lista.descricao}</p>
+      <Link href="/dashboard" className="link back-link">
+        ← Voltar ao dashboard
+      </Link>
+      <div className="lista-header">
+        <h2>{lista.nome}</h2>
+        <p>{lista.descricao || 'Sem descrição'}</p>
+      </div>
 
       {erro && <p className="error">{erro}</p>}
 
       <NovaTarefaForm onCriar={handleCriarTarefa} />
 
-      <h3>Tarefas</h3>
+      <h3 className="section-title">Tarefas</h3>
       {tarefas.length === 0 && <p>Não há tarefas nesta lista.</p>}
 
       <div className="grid">

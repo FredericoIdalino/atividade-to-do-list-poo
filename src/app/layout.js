@@ -1,6 +1,7 @@
 // app/layout.js
 // Layout raiz da aplicação. Carrega o CSS global.
 
+import Link from 'next/link';
 import '../styles/globals.css';
 
 export const metadata = {
@@ -15,14 +16,10 @@ export default function RootLayout({ children }) {
         <header className="header">
           <div className="container header-content">
             <h1 className="logo">Task Manager</h1>
+            <Link href="/" className="header-link">Início</Link>
           </div>
         </header>
         <main className="container main-content">{children}</main>
-        <footer className="footer">
-          <div className="container">
-            <p>Sistema de tarefas - Projeto acadêmico</p>
-          </div>
-        </footer>
       </body>
     </html>
   );
