@@ -97,10 +97,13 @@ export default class Usuario {
 
   // ADICIONA UMA NOVA LISTA NO BANCO E NO OBJETO
   async adicionarLista(lista) {
+    // Gera UUID se a lista não tiver id (evita erro de not-null no banco)
+    const listaId = lista.id || crypto.randomUUID();
+
     const { data, error } = await supabase
       .from('listas')
       .insert({
-        id: lista.id,
+        id: listaId,
         usuario_id: this.id,
         nome: lista.nome,
         descricao: lista.descricao
