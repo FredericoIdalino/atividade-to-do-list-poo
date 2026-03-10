@@ -22,6 +22,8 @@ export default function ListaDetalhePage() {
   const [tarefas, setTarefas] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState('');
+  const [tarefaEmEdicao, setTarefaEmEdicao] = useState(null);
+  const [tarefaParaExcluir, setTarefaParaExcluir] = useState(null);
 
   useEffect(() => {
     const carregarDados = async () => {
@@ -137,29 +139,33 @@ export default function ListaDetalhePage() {
     }
   };
 
-  const handleEditarTarefa = async (tarefa) => {
-    // Para manter o projeto simples, usamos prompts nativos
-    const novoTitulo = window.prompt('Novo título:', tarefa.titulo);
-    if (novoTitulo === null) return;
+  // Quando clicar em "Editar" em uma tarefa, abrimos um pequeno formulário de edição.
+  const handleEditarTarefa = (tarefa) => {
+    setTarefaEmEdicao({
+      id: tarefa.id,
+      titulo: tarefa.titulo,
+      descricao: tarefa.descricao || '',
+      data_vencimento: tarefa.data_vencimento || tarefa.dataDeVencimento || ''
+    });
+  };
 
-    const novaDescricao = window.prompt('Nova descrição:', tarefa.descricao);
-    if (novaDescricao === null) return;
+  const cancelarEdicao = () => {
+    setTarefaEmEdicao(null);
+  };
 
-    const novaData = window.prompt(
-      'Nova data de vencimento (YYYY-MM-DD):',
-      tarefa.data_vencimento || tarefa.dataDeVencimento || ''
-    );
-    if (novaData === null) return;
+  const salvarEdicao = async (event) => {
+    event.preventDefault();
+    if (!tarefaEmEdicao) return;
 
     try {
       const { error } = await supabase
         .from('tarefas')
         .update({
-          titulo: novoTitulo,
-          descricao: novaDescricao,
-          data_vencimento: novaData
+          titulo: tarefaEmEdicao.titulo,
+          descricao: tarefaEmEdicao.descricao,
+          data_vencimento: tarefaEmEdicao.data_vencimento
         })
-        .eq('id', tarefa.id);
+        .eq('id', tarefaEmEdicao.id);
 
       if (error) {
         throw error;
@@ -167,37 +173,50 @@ export default function ListaDetalhePage() {
 
       setTarefas((prev) =>
         prev.map((t) =>
-          t.id === tarefa.id
+          t.id === tarefaEmEdicao.id
             ? {
                 ...t,
-                titulo: novoTitulo,
-                descricao: novaDescricao,
-                data_vencimento: novaData
+                titulo: tarefaEmEdicao.titulo,
+                descricao: tarefaEmEdicao.descricao,
+                data_vencimento: tarefaEmEdicao.data_vencimento
               }
             : t
         )
       );
+
+      setTarefaEmEdicao(null);
     } catch (e) {
       setErro(e.message || 'Erro ao editar tarefa.');
     }
   };
 
-  const handleExcluirTarefa = async (tarefaId) => {
-    if (!window.confirm('Tem certeza que deseja excluir esta tarefa?')) {
-      return;
-    }
+  // Quando clicar em "Excluir", mostramos um card de confirmação em vez de window.confirm.
+  const handleExcluirTarefa = (tarefaId) => {
+    const tarefaEncontrada = tarefas.find((t) => t.id === tarefaId) || null;
+    setTarefaParaExcluir(tarefaEncontrada);
+  };
+
+  const cancelarExclusao = () => {
+    setTarefaParaExcluir(null);
+  };
+
+  const confirmarExclusao = async () => {
+    if (!tarefaParaExcluir) return;
 
     try {
       const { error } = await supabase
         .from('tarefas')
         .delete()
-        .eq('id', tarefaId);
+        .eq('id', tarefaParaExcluir.id);
 
       if (error) {
         throw error;
       }
 
-      setTarefas((prev) => prev.filter((tarefa) => tarefa.id !== tarefaId));
+      setTarefas((prev) =>
+        prev.filter((tarefa) => tarefa.id !== tarefaParaExcluir.id)
+      );
+      setTarefaParaExcluir(null);
     } catch (e) {
       setErro(e.message || 'Erro ao excluir tarefa.');
     }
@@ -239,6 +258,102 @@ export default function ListaDetalhePage() {
           />
         ))}
       </div>
+
+      {tarefaEmEdicao && (
+        <div className="modal-overlay">
+          <div className="card modal-card">
+            <h3>Editar tarefa</h3>
+            <form className="edit-form" onSubmit={salvarEdicao}>
+              <label className="label">
+                Título
+                <input
+                  className="input"
+                  type="text"
+                  value={tarefaEmEdicao.titulo}
+                  onChange={(e) =>
+                    setTarefaEmEdicao({
+                      ...tarefaEmEdicao,
+                      titulo: e.target.value
+                    })
+                  }
+                  required
+                />
+              </label>
+
+              <label className="label">
+                Descrição
+                <input
+                  className="input"
+                  type="text"
+                  value={tarefaEmEdicao.descricao}
+                  onChange={(e) =>
+                    setTarefaEmEdicao({
+                      ...tarefaEmEdicao,
+                      descricao: e.target.value
+                    })
+                  }
+                />
+              </label>
+
+              <label className="label">
+                Data de vencimento
+                <input
+                  className="input"
+                  type="date"
+                  value={tarefaEmEdicao.data_vencimento || ''}
+                  onChange={(e) =>
+                    setTarefaEmEdicao({
+                      ...tarefaEmEdicao,
+                      data_vencimento: e.target.value
+                    })
+                  }
+                />
+              </label>
+
+              <div className="card-actions">
+                <button className="button" type="submit">
+                  Salvar
+                </button>
+                <button
+                  className="button button-secondary"
+                  type="button"
+                  onClick={cancelarEdicao}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {tarefaParaExcluir && (
+        <div className="modal-overlay">
+          <div className="card modal-card">
+            <h3>Excluir tarefa</h3>
+            <p>
+              Tem certeza que deseja excluir a tarefa{' '}
+              <strong>{tarefaParaExcluir.titulo}</strong>?
+            </p>
+            <div className="card-actions">
+              <button
+                className="button button-danger"
+                type="button"
+                onClick={confirmarExclusao}
+              >
+                Excluir
+              </button>
+              <button
+                className="button button-secondary"
+                type="button"
+                onClick={cancelarExclusao}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

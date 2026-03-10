@@ -342,6 +342,24 @@ a {
   font-weight: 500;
 }
 
+/* MODAL / POPUP */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 1.5rem;
+}
+
+.modal-card {
+  max-width: 480px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+}
+
 .status-pendente {
   background: #fef3c7;
   color: #b45309;
